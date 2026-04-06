@@ -2,6 +2,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Установка OpenSSL для Prisma
+RUN apk add --no-cache openssl
+
 COPY package*.json ./
 RUN npm install
 
@@ -12,6 +15,9 @@ RUN npm run build
 FROM node:20-alpine
 
 WORKDIR /app
+
+# Установка OpenSSL в production образе
+RUN apk add --no-cache openssl
 
 COPY package*.json ./
 RUN npm install --production

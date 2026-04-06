@@ -102,9 +102,9 @@ else
     echo "⚠️  Backend не отвечает. Проверьте логи: docker compose logs backend"
 fi
 
-FRONTEND_HEALTH=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080 || echo "000")
+FRONTEND_HEALTH=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:1499 || echo "000")
 if [ "$FRONTEND_HEALTH" = "200" ]; then
-    echo "✅ Frontend работает (http://localhost:8080)"
+    echo "✅ Frontend работает (http://localhost:1499)"
 else
     echo "⚠️  Frontend не отвечает. Проверьте логи: docker compose logs frontend"
 fi
@@ -114,9 +114,9 @@ echo "===================================="
 echo "✨ Деплой завершен!"
 echo ""
 echo "📱 Приложение доступно по адресу:"
-echo "   http://localhost:8080"
+echo "   http://localhost:1499"
 echo "   или"
-echo "   http://$(hostname -I | awk '{print $1}'):8080"
+echo "   http://$(hostname -I | awk '{print $1}'):1499"
 echo ""
 echo "📝 Полезные команды:"
 echo "   docker compose logs -f          # Просмотр логов"
