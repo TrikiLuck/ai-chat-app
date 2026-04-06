@@ -1,20 +1,21 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: ai-chat-postgres
+  mysql:
+    image: mysql:8.0
+    container_name: ai-chat-mysql
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-ai_chat_app}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-ai_chat_app}
+      MYSQL_USER: ${MYSQL_USER:-aiuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-aipassword}
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,7 +26,7 @@ services:
       dockerfile: Dockerfile
     container_name: ai-chat-backend
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-ai_chat_app}
+      DATABASE_URL: mysql://${MYSQL_USER:-aiuser}:${MYSQL_PASSWORD:-aipassword}@mysql:3306/${MYSQL_DATABASE:-ai_chat_app}
       JWT_SECRET: ${JWT_SECRET}
       OMNIROUTE_API_KEY: ${OMNIROUTE_API_KEY}
       OMNIROUTE_ENDPOINT: ${OMNIROUTE_ENDPOINT:-https://api.omniroute.ai}
@@ -34,7 +35,7 @@ services:
     ports:
       - "3001:3001"
     depends_on:
-      postgres:
+      mysql:
         condition: service_healthy
     volumes:
       - ./backend/uploads:/app/uploads
@@ -54,4 +55,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres_data:
+  mysql_data:

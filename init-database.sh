@@ -4,26 +4,26 @@
 
 set -e
 
-echo "🗄️  Инициализация базы данных AI Chat App"
-echo "=========================================="
+echo "🗄️  Инициализация базы данных AI Chat App (MySQL)"
+echo "=================================================="
 echo ""
 
 # Проверка, что контейнеры запущены
-if ! docker compose ps postgres | grep -q "Up"; then
-    echo "❌ Контейнер PostgreSQL не запущен"
+if ! docker compose ps mysql | grep -q "Up"; then
+    echo "❌ Контейнер MySQL не запущен"
     echo "Запустите: docker compose up -d"
     exit 1
 fi
 
-echo "✅ PostgreSQL контейнер запущен"
+echo "✅ MySQL контейнер запущен"
 echo ""
 
 # Проверка существования таблиц
 echo "🔍 Проверка существующих таблиц..."
-TABLES=$(docker compose exec -T postgres psql -U postgres -d ai_chat_app -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';" 2>/dev/null || echo "0")
+TABLES=$(docker compose exec -T mysql mysql -u root -prootpassword ai_chat_app -e "SHOW TABLES;" 2>/dev/null | wc -l || echo "0")
 
-if [ "$TABLES" -gt "0" ]; then
-    echo "⚠️  База данных уже содержит таблицы ($TABLES таблиц)"
+if [ "$TABLES" -gt "1" ]; then
+    echo "⚠️  База данных уже содержит таблицы"
     read -p "Пересоздать базу данных? Это удалит все данные! (yes/no): " CONFIRM
     
     if [ "$CONFIRM" != "yes" ]; then
@@ -32,40 +32,30 @@ if [ "$TABLES" -gt "0" ]; then
     fi
     
     echo "🗑️  Удаление существующих таблиц..."
-    docker compose exec -T postgres psql -U postgres -d ai_chat_app -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+    docker compose exec -T mysql mysql -u root -prootpassword ai_chat_app -e "DROP DATABASE ai_chat_app; CREATE DATABASE ai_chat_app;"
 fi
 
 echo ""
 echo "📝 Применение миграций через Prisma..."
 
-# Попытка применить миграции через Prisma
+# Применение миграций через Prisma
 if docker compose exec -T backend npx prisma migrate deploy 2>/dev/null; then
     echo "✅ Миграции Prisma применены успешно"
 else
-    echo "⚠️  Миграции Prisma не найдены, применяем SQL скрипт..."
-    
-    # Применение SQL скрипта напрямую
-    docker compose exec -T postgres psql -U postgres -d ai_chat_app < backend/init-db.sql
-    
-    if [ $? -eq 0 ]; then
-        echo "✅ SQL скрипт применен успешно"
-    else
-        echo "❌ Ошибка при применении SQL скрипта"
-        exit 1
-    fi
+    echo "❌ Ошибка при применении миграций"
+    exit 1
 fi
 
 echo ""
 echo "🔍 Проверка созданных таблиц..."
-docker compose exec -T postgres psql -U postgres -d ai_chat_app -c "\dt"
+docker compose exec -T mysql mysql -u root -prootpassword ai_chat_app -e "SHOW TABLES;"
 
 echo ""
 echo "✅ База данных успешно инициализирована!"
 echo ""
 echo "📊 Статистика:"
-docker compose exec -T postgres psql -U postgres -d ai_chat_app -c "
-SELECT 
-    'users' as table_name, COUNT(*) as count FROM users
+docker compose exec -T mysql mysql -u root -prootpassword ai_chat_app -e "
+SELECT 'users' as table_name, COUNT(*) as count FROM users
 UNION ALL
 SELECT 'chats', COUNT(*) FROM chats
 UNION ALL
