@@ -25,7 +25,7 @@ app.use('/api/files', fileRoutes);
 app.use('/api/models', modelRoutes);
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 

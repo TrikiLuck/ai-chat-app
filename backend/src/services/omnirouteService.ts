@@ -90,8 +90,8 @@ class OmnirouteService {
         throw new Error(`Omniroute API error: ${response.statusText}`);
       }
 
-      const data = await response.json();
-      return data.data?.map((model: any) => model.id) || [];
+      const data = await response.json() as { data?: Array<{ id: string }> };
+      return data.data?.map((model) => model.id) || [];
     } catch (error) {
       console.error('Error fetching models:', error);
       return [];
