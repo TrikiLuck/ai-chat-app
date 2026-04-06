@@ -48,7 +48,7 @@ services:
         VITE_API_URL: /api
     container_name: ai-chat-frontend
     ports:
-      - "8080:80"
+      - "1499:80"
     depends_on:
       - backend
     restart: unless-stopped
