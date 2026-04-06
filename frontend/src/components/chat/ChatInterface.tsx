@@ -9,19 +9,6 @@ import { Spinner } from '../common/Spinner';
 export const ChatInterface: React.FC = () => {
   const { currentChat, messages, addMessage, updateLastMessage } = useStore();
   const [isSending, setIsSending] = useState(false);
-  const [models, setModels] = useState<string[]>([]);
-
-  useEffect(() => {
-    const loadModels = async () => {
-      try {
-        const availableModels = await modelService.getModels();
-        setModels(availableModels);
-      } catch (error) {
-        console.error('Failed to load models:', error);
-      }
-    };
-    loadModels();
-  }, []);
 
   const handleSendMessage = async (content: string) => {
     if (!currentChat) return;

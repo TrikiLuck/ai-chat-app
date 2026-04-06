@@ -12,9 +12,11 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
     <ReactMarkdown
       className="prose prose-sm max-w-none"
       components={{
-        code({ node, inline, className, children, ...props }) {
+        code({ className, children, ...props }) {
           const match = /language-(\w+)/.exec(className || '');
-          return !inline && match ? (
+          const isInline = !match;
+          
+          return !isInline && match ? (
             <div className="relative">
               <button
                 className="absolute right-2 top-2 px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-white rounded"
@@ -25,7 +27,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
                 Копировать
               </button>
               <SyntaxHighlighter
-                style={vscDarkPlus}
+                style={vscDarkPlus as any}
                 language={match[1]}
                 PreTag="div"
                 {...props}
