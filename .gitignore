@@ -42,6 +42,3 @@ backend/uploads/*
 # Database
 *.db
 *.db-journal
-
-# Prisma
-backend/prisma/migrations/
