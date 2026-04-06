@@ -12,7 +12,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
     <ReactMarkdown
       className="prose prose-sm max-w-none"
       components={{
-        code({ className, children, ...props }) {
+        code({ className, children }) {
           const match = /language-(\w+)/.exec(className || '');
           const isInline = !match;
           
@@ -30,13 +30,12 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
                 style={vscDarkPlus as any}
                 language={match[1]}
                 PreTag="div"
-                {...props}
               >
                 {String(children).replace(/\n$/, '')}
               </SyntaxHighlighter>
             </div>
           ) : (
-            <code className="bg-gray-100 px-1 py-0.5 rounded text-sm" {...props}>
+            <code className="bg-gray-100 px-1 py-0.5 rounded text-sm">
               {children}
             </code>
           );

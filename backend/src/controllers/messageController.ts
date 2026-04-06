@@ -47,7 +47,7 @@ export const sendMessage = async (req: AuthRequest, res: Response): Promise<void
       });
 
       // Проверяем, есть ли изображения
-      const hasImages = files.some(file => 
+      const hasImages = files.some((file: { mimeType: string }) => 
         file.mimeType.startsWith('image/')
       );
 
@@ -71,7 +71,7 @@ export const sendMessage = async (req: AuthRequest, res: Response): Promise<void
 
     // Формируем историю сообщений для контекста
     const messages = [
-      ...chat.messages.map((msg) => ({
+      ...chat.messages.map((msg: { role: string; content: string }) => ({
         role: msg.role,
         content: msg.content,
       })),
