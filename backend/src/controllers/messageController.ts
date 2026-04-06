@@ -41,6 +41,23 @@ export const sendMessage = async (req: AuthRequest, res: Response): Promise<void
 
     // Если есть файлы, привязываем их к сообщению
     if (fileIds && fileIds.length > 0) {
+      // Получаем информацию о файлах
+      const files = await prisma.file.findMany({
+        where: { id: { in: fileIds } },
+      });
+
+      // Проверяем, есть ли изображения
+      const hasImages = files.some(file => 
+        file.mimeType.startsWith('image/')
+      );
+
+      if (hasImages) {
+        res.status(400).json({ 
+          error: 'Модель не поддерживает изображения. Пожалуйста, используйте только текстовые файлы.' 
+        });
+        return;
+      }
+
       await prisma.file.updateMany({
         where: { id: { in: fileIds } },
         data: { messageId: userMessage.id },

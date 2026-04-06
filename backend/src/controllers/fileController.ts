@@ -34,6 +34,17 @@ export const uploadFile = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
+    // Проверяем, что это не изображение
+    if (req.file.mimetype.startsWith('image/')) {
+      // Удаляем загруженный файл
+      fs.unlinkSync(req.file.path);
+      
+      res.status(400).json({ 
+        error: 'Загрузка изображений не поддерживается. Модель работает только с текстовыми файлами.' 
+      });
+      return;
+    }
+
     const file = await prisma.file.create({
       data: {
         filename: req.file.originalname,
